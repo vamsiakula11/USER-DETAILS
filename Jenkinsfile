@@ -5,14 +5,15 @@ pipeline {
         // Update these values with your configuration
         GIT_REPO = 'https://github.com/harsha-karatam/my-app.git' // Replace with your repo
         DOCKER_IMAGE = 'harsha/my-python-app'                    // Docker image name
-        DOCKER_CONTAINER_NAME = '5733fbfdbad0'                 // Docker container name
+        DOCKER_CONTAINER_NAME = 'my-python-app-container'        // Use a more descriptive container name
     }
 
     stages {
         stage('Clone Repository') {
             steps {
                 echo 'Cloning GitHub Repository...'
-                git branch: 'main', url: "${https://github.com/harsha-karatam/my-app.git}"
+                // Use the environment variable for Git URL
+                git branch: 'main', url: "${GIT_REPO}"
             }
         }
 
