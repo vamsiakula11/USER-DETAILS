@@ -20,7 +20,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker Image...'
-                sh 'sudo docker build -t harsha/my-python-app:latest .'
+                sh 'sudo docker build -t ${DOCKER_IMAGE}:latest .'
             }
         }
 
