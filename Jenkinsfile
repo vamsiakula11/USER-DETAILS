@@ -20,7 +20,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker Image...'
-                sh 'sudo docker build -t ${DOCKER_IMAGE}:latest .'
+                // Remove 'sudo' as Jenkins should be running with the necessary permissions
+                sh 'docker build -t ${DOCKER_IMAGE}:latest .'
             }
         }
 
