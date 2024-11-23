@@ -34,15 +34,16 @@ pipeline {
                     '''
                     
                     echo 'Checking if Port is Available...'
-                    // Fallback to netstat if lsof is not available
+                    // Check if port 5000 is in use
                     sh '''
                         if netstat -tuln | grep :${APP_PORT}; then
                             echo "Port ${APP_PORT} is in use. Exiting...";
                             exit 1;
                         fi
                     '''
-
+                    
                     echo 'Running New Container...'
+                    // Start a new container using the latest image
                     sh '''
                         docker run -d --name ${DOCKER_CONTAINER_NAME} -p ${APP_PORT}:${APP_PORT} ${DOCKER_IMAGE}:latest
                     '''
