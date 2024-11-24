@@ -35,11 +35,14 @@ pipeline {
                     echo 'Checking if Port is Available...'
                     sh '''
                         if netstat -tuln | grep -q :${APP_PORT}; then
-                            echo "Port ${APP_PORT} is in use. Stopping process..."
-                            lsof -i :${APP_PORT} | awk 'NR>1 {print $2}' | xargs kill -9 || true
+                            echo "Port ${APP_PORT} is in use. Terminating process..."
+                            PID=$(lsof -ti :${APP_PORT})
+                            if [ -n "$PID" ]; then
+                                kill -9 $PID || true
+                            fi
                         fi
                     '''
-                    
+
                     echo 'Starting New Docker Container...'
                     sh '''
                         docker run -d --name ${CONTAINER_NAME} -p ${APP_PORT}:${APP_PORT} ${IMAGE_NAME}
