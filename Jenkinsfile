@@ -3,8 +3,9 @@ pipeline {
 
     environment {
         CONTAINER_NAME = "friendly_raman"
-        APP_PATH_IN_CONTAINER = "/app/html" // Adjust to your application path
-        HOST_APP_PATH = "./app/html"       // Path to updated HTML files on the host
+        APP_PATH_IN_CONTAINER = "/app" // Adjust this if the app is in a different directory inside the container
+        HOST_APP_PATH = "./app"       // Path to updated files on the host
+        APP_PORT = "5000"             // Application port
     }
 
     stages {
@@ -14,26 +15,20 @@ pipeline {
             }
         }
 
-        stage('Update Application Files') {
+        stage('Update Application in Running Container') {
             steps {
                 script {
-                    echo "Copying updated HTML files into the container: ${CONTAINER_NAME}..."
+                    echo "Copying updated application files into the container: ${CONTAINER_NAME}..."
                     sh '''
-                        # Copy updated files into the container
+                        # Copy updated application files into the container
                         docker cp ${HOST_APP_PATH}/ ${CONTAINER_NAME}:${APP_PATH_IN_CONTAINER}/
                     '''
-                }
-            }
-        }
-
-        stage('Restart Container') {
-            steps {
-                script {
-                    echo "Restarting the container: ${CONTAINER_NAME}..."
+                    
+                    echo "Restarting application inside the container: ${CONTAINER_NAME}..."
                     sh '''
-                        # Stop and restart the container
-                        docker stop ${CONTAINER_NAME}
-                        docker start ${CONTAINER_NAME}
+                        # Kill the existing application process and restart it
+                        docker exec ${CONTAINER_NAME} pkill -f "python" || true
+                        docker exec ${CONTAINER_NAME} python ${APP_PATH_IN_CONTAINER}/main.py &
                     '''
                 }
             }
@@ -42,10 +37,10 @@ pipeline {
 
     post {
         success {
-            echo 'Application updated and container restarted successfully!'
+            echo 'Application updated successfully in the running container!'
         }
         failure {
-            echo 'Update or restart failed. Check the logs for details.'
+            echo 'Update failed. Check the logs for details.'
         }
     }
 }
