@@ -24,9 +24,18 @@ pipeline {
                         docker cp ${HOST_APP_PATH}/ ${CONTAINER_NAME}:${APP_PATH_IN_CONTAINER}/
                     '''
                     
+                    echo "Stopping and restarting the container: ${CONTAINER_NAME}..."
+                    sh '''
+                        # Stop the container if it's running
+                        docker stop ${CONTAINER_NAME} || true
+                        
+                        # Restart the container
+                        docker start ${CONTAINER_NAME}
+                    '''
+                    
                     echo "Restarting application inside the container: ${CONTAINER_NAME}..."
                     sh '''
-                        # Kill the existing application process and restart it
+                        # Restart the application process if necessary
                         docker exec ${CONTAINER_NAME} pkill -f "python" || true
                         docker exec ${CONTAINER_NAME} python ${APP_PATH_IN_CONTAINER}/main.py &
                     '''
@@ -37,7 +46,7 @@ pipeline {
 
     post {
         success {
-            echo 'Application updated successfully in the running container!'
+            echo 'Application updated and container restarted successfully!'
         }
         failure {
             echo 'Update failed. Check the logs for details.'
