@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        CONTAINER_NAME = "friendly_raman"
+        CONTAINER_NAME = "flask-app"
         APP_PATH_IN_CONTAINER = "/app" // Adjust this if the app is in a different directory inside the container
         HOST_APP_PATH = "./app"       // Path to updated files on the host
         APP_PORT = "5000"             // Application port
