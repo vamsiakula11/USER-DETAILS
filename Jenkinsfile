@@ -2,10 +2,11 @@ pipeline {
     agent any
 
     environment {
-        CONTAINER_NAME = "flask-app"
-        APP_PATH_IN_CONTAINER = "/app" // Adjust this if the app is in a different directory inside the container
-        HOST_APP_PATH = "./app"       // Path to updated files on the host
-        APP_PORT = "5000"             // Application port
+        EC2_USER = "ubuntu"                  // Change to your EC2 user (e.g., ec2-user for Amazon Linux)
+        EC2_HOST = "13.235.238.42"      // Replace with your EC2 instance IP
+        APP_DIR = "/home/ubuntu/USER-DETAILS/app" // Path to app directory on EC2
+        SSH_KEY = "/path/to/your-key.pem"    // Path to your EC2 private key
+        APP_PORT = "5000"                    // Flask application port
     }
 
     stages {
@@ -15,30 +16,22 @@ pipeline {
             }
         }
 
-        stage('Update Application in Running Container') {
+        stage('Deploy to EC2') {
             steps {
                 script {
-                    echo "Copying updated application files into the container: ${CONTAINER_NAME}..."
-                    sh '''
-                        # Copy updated application files into the container
-                        docker cp ${HOST_APP_PATH}/ ${CONTAINER_NAME}:${APP_PATH_IN_CONTAINER}/
-                    '''
-                    
-                    echo "Stopping and restarting the container: ${CONTAINER_NAME}..."
-                    sh '''
-                        # Stop the container if it's running
-                        docker stop ${CONTAINER_NAME} || true
-                        
-                        # Restart the container
-                        docker start ${CONTAINER_NAME}
-                    '''
-                    
-                    echo "Restarting application inside the container: ${CONTAINER_NAME}..."
-                    sh '''
-                        # Restart the application process if necessary
-                        docker exec ${CONTAINER_NAME} pkill -f "python" || true
-                        docker exec ${CONTAINER_NAME} python ${APP_PATH_IN_CONTAINER}/main.py &
-                    '''
+                    echo "Copying updated application files to EC2..."
+                    sh """
+                        scp -i ${SSH_KEY} -r app/* ${EC2_USER}@${EC2_HOST}:${APP_DIR}/
+                    """
+
+                    echo "Restarting application on EC2..."
+                    sh """
+                        ssh -i ${SSH_KEY} ${EC2_USER}@${EC2_HOST} << EOF
+                            pkill -f "python" || true
+                            nohup python3 ${APP_DIR}/main.py > ${APP_DIR}/app.log 2>&1 &
+                            echo "Application restarted successfully!"
+                        EOF
+                    """
                 }
             }
         }
@@ -46,10 +39,10 @@ pipeline {
 
     post {
         success {
-            echo 'Application updated and container restarted successfully!'
+            echo 'Deployment to EC2 successful!'
         }
         failure {
-            echo 'Update failed. Check the logs for details.'
+            echo 'Deployment failed. Check the logs for details.'
         }
     }
 }
