@@ -17,26 +17,27 @@ pipeline {
         }
 
         stage('Deploy to EC2') {
-            steps {
-                script {
-                    echo "Copying updated application files to EC2..."
-                    sh """
-                        # scp -i ${SSH_KEY} -r app/* ${EC2_USER}@${EC2_HOST}:${APP_DIR}/
-                        scp -o StrictHostKeyChecking=no -i ${SSH_KEY} -r app/* ${EC2_USER}@${EC2_HOST}:${APP_DIR}/
-                    """
-
-                    echo "Restarting application on EC2..."
-                    sh """
-                       ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ${EC2_USER}@${EC2_HOST} << EOF
-        pkill -f "python" || true
-        nohup python3 ${APP_DIR}/main.py > ${APP_DIR}/app.log 2>&1 &
-        echo "Application restarted successfully!"
-    EOF
-                    """
-                }
-            }
+    steps {
+        script {
+            echo "Copying updated application files to EC2..."
+            sh '''
+            scp -o StrictHostKeyChecking=no -i /var/lib/jenkins/jenkkins.pem -r app/main.py app/templates ubuntu@43.205.192.24:/home/ubuntu/USER-DETAILS/app/
+            '''
+            
+            echo "Restarting application on EC2..."
+            sh '''
+            ssh -o StrictHostKeyChecking=no -i /var/lib/jenkins/jenkkins.pem ubuntu@43.205.192.24 << 'EOF'
+            sudo pkill -f gunicorn || echo "Gunicorn process not found"
+            cd /home/ubuntu/USER-DETAILS/app
+            source /home/ubuntu/USER-DETAILS/venv/bin/activate
+            nohup gunicorn -w 4 -b 0.0.0.0:5000 main:app > gunicorn.log 2>&1 &
+            EOF
+            '''
         }
     }
+}
+
+}
 
     post {
         success {
