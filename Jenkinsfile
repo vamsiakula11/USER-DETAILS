@@ -21,12 +21,12 @@ pipeline {
                 script {
                     echo "Copying updated application files to EC2..."
                     sh """
-                        scp -i ${SSH_KEY} -r app/* ${EC2_USER}@${EC2_HOST}:${APP_DIR}/
+                        sudo scp -i ${SSH_KEY} -r app/* ${EC2_USER}@${EC2_HOST}:${APP_DIR}/
                     """
 
                     echo "Restarting application on EC2..."
                     sh """
-                        ssh -i ${SSH_KEY} ${EC2_USER}@${EC2_HOST} << EOF
+                       ssh -i ${SSH_KEY} ${EC2_USER}@${EC2_HOST} << EOF
                             pkill -f "python" || true
                             nohup python3 ${APP_DIR}/main.py > ${APP_DIR}/app.log 2>&1 &
                             echo "Application restarted successfully!"
