@@ -26,16 +26,18 @@ pipeline {
             
             echo "Restarting application on EC2..."
             sh '''
-            ssh -o StrictHostKeyChecking=no -i /var/lib/jenkins/jenkkins.pem ubuntu@43.205.192.24 << 'EOF'
+            ssh -o StrictHostKeyChecking=no -i /var/lib/jenkins/jenkkins.pem ubuntu@43.205.192.24 <<EOF
             sudo pkill -f gunicorn || echo "Gunicorn process not found"
             cd /home/ubuntu/USER-DETAILS/app
             source /home/ubuntu/USER-DETAILS/venv/bin/activate
             nohup gunicorn -w 4 -b 0.0.0.0:5000 main:app > gunicorn.log 2>&1 &
-            EOF
+            exit
+EOF
             '''
         }
     }
 }
+
 
 }
 
