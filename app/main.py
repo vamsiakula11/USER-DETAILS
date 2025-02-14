@@ -7,9 +7,9 @@ from datetime import datetime
 app = Flask(__name__)
 
 # Database Configuration (Assuming PostgreSQL is running inside Docker)
-DB_HOST = "database-2.c78emaw4caq6.ap-south-1.rds.amazonaws.com"  # Update if using Docker container name or IP
-DB_NAME = "mysql"
-DB_USER = "admin"
+DB_HOST = "database-1.c9scia20gbq0.ap-south-1.rds.amazonaws.com"  # Update if using Docker container name or IP
+DB_NAME = "postgres"
+DB_USER = "postgres"
 DB_PASSWORD = "Allvy1234"
 
 # Connect to PostgreSQL
