@@ -21,7 +21,7 @@ pipeline {
                 script {
                     echo "Copying updated application files to EC2..."
                     sh """
-                        sudo scp -i ${SSH_KEY} -r app/* ${EC2_USER}@${EC2_HOST}:${APP_DIR}/
+                        scp -i ${SSH_KEY} -r app/* ${EC2_USER}@${EC2_HOST}:${APP_DIR}/
                     """
 
                     echo "Restarting application on EC2..."
