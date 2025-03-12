@@ -31,7 +31,7 @@
             margin-bottom: 8px;
             display: block;
         }
-        input[type="text"], input[type="email"], input[type="file"] {
+        input[type="text"], input[type="email"] {
             width: 100%;
             padding: 10px;
             margin-bottom: 20px;
@@ -54,38 +54,20 @@
         button:hover {
             background-color: #45a049;
         }
-        .form-footer {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .form-footer a {
-            color: #4CAF50;
-            text-decoration: none;
-        }
-        .form-footer a:hover {
-            text-decoration: underline;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>User Data Form</h1>
-        <form action="/submit" method="POST" enctype="multipart/form-data">
+        <form action="/submit" method="POST">
             <label for="name">Name:</label>
             <input type="text" id="name" name="name" required>
 
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
 
-            <label for="image">Profile Image (Optional):</label>
-            <input type="file" id="image" name="image">
-
             <button type="submit">Submit</button>
         </form>
-
-        <div class="form-footer">
-            <p>Already have an account? <a href="#">Login</a></p>
-        </div>
     </div>
 </body>
 </html>
